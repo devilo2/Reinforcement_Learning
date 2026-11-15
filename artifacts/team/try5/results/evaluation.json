@@ -1,0 +1,78 @@
+{
+  "models": [
+    {
+      "seed": 20237141,
+      "checkpoint": "artifacts/team/try5/models/LunarLander-v3__train_ppo__20237141__1794731637.pt",
+      "argmax": {
+        "mean": 254.3842945602908,
+        "sd": 21.385058175998367
+      },
+      "sample": {
+        "mean": 263.675003513508,
+        "sd": 44.52169251227545
+      }
+    },
+    {
+      "seed": 30237141,
+      "checkpoint": "artifacts/team/try5/models/LunarLander-v3__train_ppo__30237141__1794733206.pt",
+      "argmax": {
+        "mean": 260.87747519872084,
+        "sd": 20.88854319926519
+      },
+      "sample": {
+        "mean": 260.88451852315035,
+        "sd": 44.1130233136369
+      }
+    },
+    {
+      "seed": 40237141,
+      "checkpoint": "artifacts/team/try5/models/LunarLander-v3__train_ppo__40237141__1794733874.pt",
+      "argmax": {
+        "mean": 252.32567256131867,
+        "sd": 25.385341402561036
+      },
+      "sample": {
+        "mean": 146.3030576675929,
+        "sd": 40.32367951962038
+      }
+    },
+    {
+      "seed": 50237141,
+      "checkpoint": "artifacts/team/try5/models/LunarLander-v3__train_ppo__50237141__1794734398.pt",
+      "argmax": {
+        "mean": 261.7664447686055,
+        "sd": 21.036792457523223
+      },
+      "sample": {
+        "mean": 219.705690188187,
+        "sd": 57.40499497111551
+      }
+    },
+    {
+      "seed": 60237141,
+      "checkpoint": "artifacts/team/try5/models/LunarLander-v3__train_ppo__60237141__1794734715.pt",
+      "argmax": {
+        "mean": 253.39573772288523,
+        "sd": 21.793446258949977
+      },
+      "sample": {
+        "mean": 261.68090122961036,
+        "sd": 42.386558334776254
+      }
+    }
+  ],
+  "summary": {
+    "argmax": {
+      "mean": 256.54992496236423,
+      "sd": 3.960377013995346,
+      "episode_sd": 22.097836298859555
+    },
+    "sample": {
+      "mean": 230.4498342244097,
+      "sd": 45.17007430790996,
+      "episode_sd": 45.749989730284895
+    }
+  },
+  "best_seed": 50237141,
+  "best_checkpoint": "artifacts/team/try5/models/LunarLander-v3__train_ppo__50237141__1794734398.pt"
+}
