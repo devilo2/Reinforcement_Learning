@@ -16,6 +16,7 @@
 > - 모든 학습과 평가(1~8단계)는 이미 완료되어 `artifacts/team/try5/`에 저장되어 있으며 `validate_results.py` 검증을 통과했다.
 > - **절대 학습(`train_ppo.py`)이나 평가 스크립트를 다시 덮어써서 돌리지 말 것!** (다시 돌리면 타임스탬프, 파일 해시, 지연 시간 등이 바뀌어 보고서 수치 및 TensorBoard 로그와 불일치하게 되어 감점됨)
 > - 보고서와 발표 자료의 모든 숫자는 반드시 이 `README.md` 7~8장 및 `artifacts/team/try5/report/report_tables.md`의 값을 그대로 사용한다.
+> - 7장의 "이유 분석" 중 `(가설)`, `(추정)`이 붙은 문장은 실험으로 확인한 사실이 아니다. 보고서와 발표에서도 가설로 표현한다.
 
 ---
 
@@ -82,7 +83,7 @@ sudo apt install -y python3.11-venv python3.11-dev g++
 python3.11 -m venv .venv && source .venv/bin/activate
 python -m pip install swig==4.3.1 setuptools==65.5.0 wheel==0.48.0
 python -m pip install --no-build-isolation box2d-py==2.3.5
-python -m pip install torch==2.9.1 --index-url [https://download.pytorch.org/whl/cpu](https://download.pytorch.org/whl/cpu)
+python -m pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cpu
 python -m pip install gymnasium==1.2.2 pydantic==2.11.10 onnxscript==0.5.6 onnx-ir==0.1.12 onnx onnxruntime fastapi uvicorn gradio requests imageio imageio-ffmpeg tensorboard pygame tyro
 python -m pip install matplotlib
 python -m pip freeze > requirements.txt
@@ -118,7 +119,7 @@ project/
 ├─ demo_check.py             # 8단계: 발표용 성공(>=200)/미달(<200) 사례 시드 탐색 스크립트
 ├─ validate_results.py       # 제출 전 모든 결과 파일 존재·행 개수·설정 동일성·해시 일치 자동 검증
 ├─ make_report.py            # 보고서용 그래프 4종(PNG) 및 마크다운 요약표(report_tables.md) 생성
-├─ make_readme.py            # README 자동 생성 스크립트
+├─ make_readme.py            # README 초안 생성 스크립트 (현재 README는 직접 수정한 최종본이므로 다시 실행하면 덮어써지니 실행하지 말 것)
 └─ artifacts/
    ├─ smoke/                 # 3단계 짧은 학습 점검 폴더 (제출용 압축 시 제외)
    └─ team/
@@ -156,7 +157,7 @@ python evaluate.py --output "$EXP"
 ### 3단계 ①: CleanRL 코드 수정 및 짧은 학습 점검 (Smoke Test)
 
 ```bash
-wget -O ppo.py [https://raw.githubusercontent.com/vwxyzjn/cleanrl/e421c2e/cleanrl/ppo.py](https://raw.githubusercontent.com/vwxyzjn/cleanrl/e421c2e/cleanrl/ppo.py)
+wget -O ppo.py https://raw.githubusercontent.com/vwxyzjn/cleanrl/e421c2e/cleanrl/ppo.py
 cp ppo.py train_ppo.py
 ```
 
@@ -256,19 +257,19 @@ source .venv/bin/activate
 export EXP=artifacts/team/try5
 
 # 1) 서버 모델 해시(/model)와 export.json 해시 일치 확인
-curl -s [http://127.0.0.1:8000/model](http://127.0.0.1:8000/model)
+curl -s http://127.0.0.1:8000/model
 cat "$EXP/results/export.json"
 
 # 2) 정상 추론(HTTP 200) 및 잘못된 입력 형식 거절(HTTP 422) 확인
-curl -s -X POST [http://127.0.0.1:8000/act](http://127.0.0.1:8000/act) -H "Content-Type: application/json" -d '{"obs": [0, 0, 0, 0, 0, 0, 1, 1]}'
-curl -s -o /dev/null -w "%{http_code}\n" -X POST [http://127.0.0.1:8000/act](http://127.0.0.1:8000/act) -H "Content-Type: application/json" -d '{"obs": [0, 0, 0]}'
+curl -s -X POST http://127.0.0.1:8000/act -H "Content-Type: application/json" -d '{"obs": [0, 0, 0, 0, 0, 0, 1, 1]}'
+curl -s -o /dev/null -w "%{http_code}\n" -X POST http://127.0.0.1:8000/act -H "Content-Type: application/json" -d '{"obs": [0, 0, 0]}'
 
 # 3) 클라이언트 스크립트 및 Gradio 웹 화면 실행 (브라우저 127.0.0.1:7860 접속해 2회 이상 실행 확인 후 Ctrl+C)
-python client.py --url [http://127.0.0.1:8000](http://127.0.0.1:8000)
-python app.py --url [http://127.0.0.1:8000](http://127.0.0.1:8000) --port 7860 --output "$EXP/videos"
+python client.py --url http://127.0.0.1:8000
+python app.py --url http://127.0.0.1:8000 --port 7860 --output "$EXP/videos"
 
 # 4) 발표용 성공(>=200)/미달(<200) 사례 시드 탐색 (10000~10099, 20000~20199)
-python demo_check.py --url [http://127.0.0.1:8000](http://127.0.0.1:8000) --output "$EXP"
+python demo_check.py --url http://127.0.0.1:8000 --output "$EXP"
 ```
 
 ### 제출 전 최종 검증 및 보고서 그래프·표 생성
@@ -283,7 +284,7 @@ python make_report.py
 
 ## 7. 실험 결과 및 상세 분석 (보고서·발표 핵심 내용)
 
-모든 요약 표와 그래프 원본은 `artifacts/team/try5/report/` 폴더(`report_tables.md`, `tries_curve.png`, `learning_curve_5seeds.png`, `action_modes.png`, `noise.png`)에 저장되어 있다.
+모든 요약 표와 그래프 원본은 `artifacts/team/try5/report/` 폴더(`report_tables.md`, `tries_curve.png`, `learning_curve_5seeds.png`, `action_modes.png`, `noise.png`)에 저장되어 있다. 아래 분석에서 `(가설)`, `(추정)`으로 표시한 설명은 별도 실험으로 확인한 것이 아니라 결과를 보고 세운 해석이다.
 
 ### 7.1 베이스라인 결과 (2단계, 평가 seed 10000~10099, 각 100회)
 
@@ -292,8 +293,8 @@ python make_report.py
 | **랜덤 행동 (seed 12345)** | -172.7 | 105.0 | 0% |
 | **무동작 (noop, 행동 0)** | -131.5 | 44.0 | 0% |
 
-- 무동작 정책은 엔진을 전혀 쓰지 않고 자유낙하하여 추락(-100점)하므로 평균 `-131.5`, 편차 `44.0`으로 일정하게 실패한다.
-- 랜덤 정책은 무작위 엔진 분사로 인해 매 스텝 연료 페널티(메인 -0.3, 측면 -0.03)가 누적되고 착륙 패드 밖으로 이탈하거나 급격히 회전 추락하여 평균 return(`-172.7`)이 더 낮고 표준편차(`105.0`)도 2배 이상 크다.
+- 무동작 정책은 엔진을 쓰지 않고 자유낙하해 추락(-100점)하는 에피소드가 많아 평균 `-131.5`, 편차 `44.0`으로 비교적 일정하게 실패한 것으로 보인다(추정, 종료 원인은 `baseline_noop.csv`의 `terminated`/`truncated` 열로 확인할 수 있다).
+- 랜덤 정책은 무작위 엔진 분사로 매 스텝 연료 페널티(메인 -0.3, 측면 -0.03)가 누적되고 패드 밖 이탈이나 회전 추락이 섞여 평균 return(`-172.7`)이 더 낮고 표준편차(`105.0`)도 2배 이상 큰 것으로 보인다(추정).
 - 4단계 PPO 모델(`argmax` 평균 `256.5`)과 비교하면 **랜덤 대비 +429.2점, 무동작 대비 +388.0점** 향상되었다.
 
 ### 7.2 대표 seed(`20237141`) 성능 개선 기록과 가설 분석 (3단계)
@@ -304,7 +305,7 @@ python make_report.py
 | **try2** | `update_epochs`: 4 $\rightarrow$ 10 | `try1` 학습 곡선이 0~40만 스텝 상승 후 50만 스텝부터 100 근처에서 정체됨. 수집된 배치(16,384 스텝)를 더 많이 반복 학습하도록 에폭 수만 증가 (가설) | 113.7 | 미달 |
 | **try3** | `anneal_lr`: True $\rightarrow$ False | 학습 후반부에 학습률이 선형 감소해 0에 가까워지는 것이 후반 정체의 원인일 수 있다고 가정하고 `try2`에서 학습률 감소를 끔 (가설 $\rightarrow$ 96.5로 오히려 하락하여 기각) | 96.5 | 미달 |
 | **try4** | `clip_vloss`: True $\rightarrow$ False | `try3` 변경을 되돌린 뒤(`try2` 기준), 보상 규모가 수백 점 단위로 큰 LunarLander 환경에서 이전 가치 추정치 대비 `±0.2`(`clip_coef`)로 가치 손실을 자르는 `clip_vloss=True`가 Critic 학습 속도를 제한한다는 가설 적용 | 186.2 | 미달 (큰 폭 개선) |
-| **try5** | `vf_coef`: 0.5 $\rightarrow$ 1.0 | CleanRL 코드는 `v_loss = 0.5 * MSE`로 이미 0.5를 곱한 뒤 `loss = pg_loss - ent + v_loss * vf_coef`를 계산하므로 `vf_coef=0.5`일 때 실제 가중치가 `0.25`가 됨(`train_ppo.py` 251~254행 확인). SB3 기본 비중(0.5)과 맞추기 위해 `vf_coef=1.0`으로 상향 | **263.7** | **통과 (최종 선택)** |
+| **try5** | `vf_coef`: 0.5 $\rightarrow$ 1.0 | CleanRL 코드는 `v_loss = 0.5 * MSE`로 이미 0.5를 곱한 뒤 `loss = pg_loss - ent + v_loss * vf_coef`를 계산하므로 `vf_coef=0.5`일 때 실제 가중치가 `0.25`가 됨(`train_ppo.py`의 가치 손실 계산 부분에서 확인할 것). SB3 기본 비중(0.5)과 맞추기 위해 `vf_coef=1.0`으로 상향 (SB3 쪽 설명은 코드로 직접 대조하기 전까지 가설) | **263.7** | **통과 (최종 선택)** |
 
 - **AI 제안 중 적용하지 않은 항목과 이유**:
   1. `learning_rate` 및 `ent_coef` 동시 변경: 한 `try`에 여러 설정을 동시에 바꾸면 어떤 변수가 성능 개선을 이끌었는지 인과관계를 구분할 수 없어 보류했다.
@@ -323,12 +324,12 @@ python make_report.py
 
 - **표 읽는 법**: 각 모델의 표준편차 열은 에피소드 100개 사이의 표준편차(5개 평균: `argmax 22.1`, `sample 45.7`)이고, 맨 아래 요약 행의 `±` 값은 5개 모델 평균들 사이의 표준편차(`np.std`, $n=5$로 나눔: `argmax ±4.0`, `sample ±45.2`)이다.
 - **200 미만 에피소드 종료 원인 비교 (`terminated` vs `truncated`)**:
-  - **`argmax` (전체 500회 중 2회 미달)**: `terminated 0회`(추락 없음), `truncated 2회`(시간 초과). 5개 모델 모두 252~261점대로 매우 균일하고 안정적인 착륙 성능을 보인다.
+  - **`argmax` (전체 500회 중 2회 미달)**: `terminated 0회`(추락 없음), `truncated 2회`(시간 초과). 5개 모델 모두 252~261점대로 균일하고 안정적인 착륙 성능을 보인다.
   - **`sample` (전체 500회 중 155회 미달)**: `terminated 20회`, **`truncated 135회`**. 즉 200 미만 사례의 **87.1%(135/155)가 추락이 아니라 1,000스텝 시간 초과(`truncated`)**였다.
 - **두 방식 차이의 이유 분석**:
-  - 학습 중에는 탐색을 위해 Softmax 확률 분포에서 행동을 뽑는 확률적 선택(`sample`)을 쓰지만, 수렴 후 평가에서 `sample`을 쓰면 착륙 직전 미세 제어 구간에서 차선책 행동(불필요한 메인/측면 엔진 분사)이 간헐적으로 샘플링된다. 이로 인해 착륙선이 자세를 흔들며 패드 위에서 계속 떠 있다가 연료 페널티만 누적되고 1,000스텝 시간 초과(`truncated`)로 끝나는 현상이 발생한다(가설).
-  - 특히 3단계 학습 로그에서 `last_return`이 낮았던 `40237141`(140.6)과 `50237141`(186.9)은 학습 자체가 확률적 선택으로 진행되기 때문에 4단계 `sample` 평가에서도 각각 `146.3`, `219.7`로 학습 로그와 유사하게 낮게 나왔다. 하지만 이 모델들도 최적 행동의 순위(가장 큰 logit) 자체는 올바르게 학습되어 있어, 배포 방식인 **`argmax`를 적용하면 각각 `252.3`, `261.8`로 성능이 즉시 회복**된다.
-  - 따라서 실제 서비스 배포(`serve.py`)에서 `argmax`를 사용하는 것이 평균 return(+26.1점)과 안정성(모델 간 편차 45.2 $\rightarrow$ 4.0) 양면에서 훨씬 유리하다.
+  - 학습 중에는 탐색을 위해 Softmax 확률 분포에서 행동을 뽑는 확률적 선택(`sample`)을 쓰지만, 수렴 후 평가에서 `sample`을 쓰면 착륙 직전 미세 제어 구간에서 차선책 행동(불필요한 메인/측면 엔진 분사)이 간헐적으로 샘플링될 수 있다. 이로 인해 착륙선이 자세를 흔들며 패드 위에서 떠 있다가 연료 페널티만 누적되고 1,000스텝 시간 초과(`truncated`)로 끝나는 것으로 보인다(가설).
+  - 3단계 학습 로그에서 `last_return`이 낮았던 `40237141`(140.6)과 `50237141`(186.9)은 4단계 `sample` 평가에서도 각각 `146.3`, `219.7`로 낮게 나왔다(학습 방식과 같은 확률적 선택이므로 비슷한 경향이 나온 것으로 해석, 가설). 같은 모델에 `argmax`를 적용하면 각각 `252.3`, `261.8`로 점수가 올랐다(관측된 결과). 가장 큰 logit 기준의 행동 선택은 비교적 잘 학습되어 있었던 것으로 보이지만(가설), logits 격차 등을 직접 측정해 확인하지는 않았다.
+  - 따라서 실제 서비스 배포(`serve.py`)에서 `argmax`를 사용하는 것이 평균 return(+26.1점)과 안정성(모델 간 편차 45.2 $\rightarrow$ 4.0) 양면에서 유리하다.
 
 ### 7.4 관측 노이즈($\sigma$)에 따른 성능 변화 (5단계)
 
@@ -341,16 +342,16 @@ python make_report.py
 | **0.2** | **110.9** | **23.4** | **-145.7** | 122.2 | 102.2 | 89.4 | 89.4 | 151.1 |
 
 - **$\sigma=0.0$ 점검**: 4단계 `argmax` 평균(`256.5 ± 4.0`)과 정확히 일치한다.
-- **$\sigma = 0.01 \sim 0.05$ 구간**: 변화량(-0.6, +2.8)이 모델 간 표준편차(4.8, 8.6) 안쪽이므로 유의미한 성능 향상이나 하락이 없는 강건한 구간으로 해석해야 한다.
+- **$\sigma = 0.01 \sim 0.05$ 구간**: 변화량(-0.6, +2.8)이 모델 간 표준편차(4.8, 8.6) 안쪽이므로 유의미한 성능 향상이나 하락이 없는 구간으로 해석해야 한다(+2.8을 "향상"으로 해석하지 않는다).
 - **$\sigma = 0.1$ 구간 (왜 모델 간 표준편차가 `45.4`로 급증했는가?)**:
-  - 나머지 4개 모델은 $\sigma=0.1$에서도 `237.0 ~ 266.7`점을 유지했지만, **`seed 40237141` 모델 하나만 `252.3` $\rightarrow$ `140.3`으로 급락**했기 때문이다.
-  - $\sigma=0.1$에서 200 미만 에피소드 수를 모델별로 확인한 결과, 다른 4개 모델은 3~18회인 반면 **`40237141` 모델은 100회 중 99회가 200 미만(그중 `terminated` 16회, `truncated` 83회)**이었다.
-  - 이는 4단계 확률적 선택에서 `40237141`이 취약했던 것과 동일한 원인(행동 logits 간 격차가 좁아 $\sigma=0.1$의 관측 잡음만 더해져도 `argmax` 행동이 쉽게 뒤집혀 공중에서 시간 초과됨)으로 설명된다(가설).
-- **$\sigma = 0.2$ 구간**: 5개 모델 모두 `89.4 ~ 151.1`(평균 `110.9`, -145.7점 하락)로 성능이 절반 이하로 무너진다. 특히 관측 8개 중 0 또는 1의 이진값을 갖는 **양쪽 다리 접촉 센서(7, 8번 관측값)**와 각도/속도 값에 표준편차 0.2의 큰 잡음이 매 스텝 더해지면서 착륙 여부를 오판하기 때문이다.
+  - 나머지 4개 모델은 $\sigma=0.1$에서도 `237.0 ~ 266.7`점을 유지했지만, **`seed 40237141` 모델 하나만 `252.3` $\rightarrow$ `140.3`으로 급락**했기 때문이다(위 표에서 확인되는 사실).
+  - 이 모델의 200 미만 에피소드가 추락(`terminated`)인지 시간 초과(`truncated`)인지는 `results/noise/40237141_sigma0.1.csv`의 열을 집계해 확인할 수 있다(보고서에 쓰기 전에 직접 집계할 것).
+  - `40237141`은 4단계 확률적 선택에서도 5개 중 가장 낮았다(`146.3`). 두 현상이 같은 원인(예: 행동 logits 간 격차가 작아 관측 잡음이나 샘플링에 의해 행동이 쉽게 바뀜)일 가능성이 있지만 logits 격차를 측정해 검증하지는 않았다(가설).
+- **$\sigma = 0.2$ 구간**: 5개 모델 모두 `89.4 ~ 151.1`(평균 `110.9`, -145.7점 하락)로 성능이 절반 이하로 떨어진다. 잡음이 관측 8개 모두에 더해지는 설계라 다리 접촉(7, 8번, 원래 0 또는 1) 값과 각도·속도 값이 크게 흔들려 착륙 판단이 어려워졌을 수 있다(가설, 접촉 센서만 따로 분리한 실험은 하지 않음).
 
 ### 7.5 ONNX 변환 검증, 추론 지연 및 크기 비교 (6~7단계)
 
-- **변환 대상**: Best 모델(`seed 50237141`, `models/best.pt`)의 Actor 신경망 (`models/policy.onnx`, `sha256`: `2885ac92b608741a9de7b8b5ddfe34ed0a2cc72e0e15b835e144de51210dc135`)
+- **변환 대상**: Best 모델(`seed 50237141`, `models/best.pt`)의 Actor 신경망 (`models/policy.onnx`, `sha256` 앞 8자리 `2885ac92`, 전체 값은 `results/export.json`의 `policy_sha256`)
 
 | 비교 항목 | PyTorch (`actor.pt`) | ONNX (`policy.onnx`) | 비고 |
 |---|---|---|---|
@@ -395,9 +396,10 @@ python make_report.py
 
 1. **단일 대표 seed 기반 튜닝의 한계**: `try1`~`try5` 개선 과정은 과제 규정에 따라 대표 seed(`20237141`) 하나로만 실험했다. 강화학습은 seed별 분산이 크므로(실제로 `try5`에서도 5개 seed의 `last_return`이 `140.6 ~ 263.7`로 분포함), `try2`(113.7)와 `try3`(96.5) 같은 작은 차이나 `clip_vloss`의 효과를 단일 seed 결과만으로 일반화하기는 어렵고 다중 seed 반복 검증이 필요하다.
 2. **RL Zoo 원본과의 차이**: RL Zoo의 `ppo.yml`에 명시된 하이퍼파라미터만 가져왔으며, 명시되지 않은 값(학습률 `2.5e-4` 선형 감소, `max_grad_norm=0.5`, Orthogonal 가중치 초기화 등)은 CleanRL 기본값을 그대로 사용했으므로 Stable-Baselines3(RL Zoo) 원본 실험과 완전히 동일하지는 않다.
-3. **Best 모델 선택 편향(Selection Bias)**: 평가 seed `10000~10099`(100회) 점수를 기준으로 `best.pt`(`50237141`, 평균 `261.8`)를 골랐기 때문에, 해당 100개 에피소드에 대한 점수는 모델의 일반화 성능보다 약간 높게 추정(낙관적 편향)되었을 수 있다.
+3. **Best 모델 선택 편향(Selection Bias)**: 평가 seed `10000~10099`(100회) 점수를 기준으로 `best.pt`(`50237141`, 평균 `261.8`)를 골랐기 때문에, 해당 100개 에피소드에 대한 점수는 모델의 일반화 성능보다 약간 높게 추정(낙관적 편향)되었을 수 있다. 시연 사례 탐색(`demo_check.py`)의 처음 100개 seed도 같은 구간이다.
 4. **이산 접촉 센서에 대한 가우시안 노이즈 주입**: 5단계에서 관측 8개 전체에 연속적인 정규분포 잡음을 더했는데, 7·8번 관측값(다리 접촉 여부)은 원래 `0` 또는 `1`의 이진값이다. 실제 환경에서는 접촉 센서에 가우시안 잡음보다 비트 플립(0 $\leftrightarrow$ 1) 형태의 오류 모델을 적용하는 것이 더 현실적인 개선 방향이다.
 5. **짧은 학습 점검 제외**: `artifacts/smoke/`는 코드 동작 확인용(16,384 스텝)이며 본 실험 결과 및 최종 제출 압축 파일에서 제외한다.
+6. **원인 설명은 가설**: 7장의 `(가설)`, `(추정)` 표시 문장(두 행동 방식 차이의 이유, 노이즈에서 `40237141`이 약했던 이유, `clip_vloss`와 `vf_coef`의 효과, ONNX 크기·속도 차이의 이유)은 결과를 보고 세운 해석이며, logits 격차 측정이나 ablation 같은 추가 실험으로 검증하지 않았다.
 
 ---
 
